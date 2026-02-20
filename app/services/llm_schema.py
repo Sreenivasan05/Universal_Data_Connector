@@ -7,7 +7,8 @@ Infer the source from the user's intent:
 - support    → tickets, complaints, issues, helpdesk, bugs, requests
 - analytics  → metrics, reports, dashboards, KPIs, trends, statistics, performance
 
-Keep responses concise and optimized for voice.
+After receiving tool results, always present the key data points clearly.
+Keep summaries concise but include the actual values/records returned.
 """
 
 TOOLS = [

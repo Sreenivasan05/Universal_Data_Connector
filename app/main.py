@@ -8,6 +8,14 @@ from app.config import settings
 import uvicorn
 import logging
 
+from fastapi.responses import FileResponse
+from pathlib import Path
+from fastapi.middleware.cors import CORSMiddleware
+
+
+
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
@@ -30,10 +38,19 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title=settings.APP_NAME,lifespan=lifespan)
 
 app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 app.include_router(health.router)
 app.include_router(data.router)
 app.include_router(chat.router)
+
+
+
+frontend_path = Path(__file__).parent / "frontend" / "dist"
+
+@app.get("/")
+async def serve_vue():
+    return FileResponse(frontend_path / "index.html")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)

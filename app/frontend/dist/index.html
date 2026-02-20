@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Data Assistant</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.15/vue.global.prod.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: sans-serif;
+    background: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .chat-box {
+    width: 480px;
+    height: 600px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .chat-header {
+    padding: 16px 20px;
+    background: #4f46e5;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .user      { align-self: flex-end;   background: #4f46e5; color: #fff; border-bottom-right-radius: 4px; }
+  .assistant { align-self: flex-start; background: #f0f0f0; color: #111; border-bottom-left-radius: 4px; }
+  .error     { background: #fee2e2; color: #b91c1c; }
+
+  .typing { color: #999; font-size: 13px; align-self: flex-start; padding: 6px 0; }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #e5e5e5;
+  }
+
+  input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+  }
+
+  input:focus { border-color: #4f46e5; }
+
+  button {
+    padding: 10px 18px;
+    background: #4f46e5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  button:disabled { background: #a5b4fc; cursor: not-allowed; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="chat-box">
+    <div class="chat-header">Data Assistant</div>
+
+    <div class="messages" ref="messagesEl">
+      <div
+        v-for="msg in messages"
+        :key="msg.id"
+        :class="['bubble', msg.role, msg.error ? 'error' : '']"
+      >{{ msg.text }}</div>
+      <div v-if="loading" class="typing">Thinking...</div>
+    </div>
+
+    <div class="input-row">
+      <input
+        v-model="input"
+        placeholder="Ask about CRM, support, or analytics..."
+        @keyup.enter="send"
+        :disabled="loading"
+        ref="inputEl"
+      />
+      <button @click="send" :disabled="loading || !input.trim()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const { createApp, ref, nextTick } = Vue;
+const API_BASE = "http://localhost:8000";
+
+createApp({
+  setup() {
+    const messages   = ref([]);
+    const input      = ref("");
+    const loading    = ref(false);
+    const messagesEl = ref(null);
+    const inputEl    = ref(null);
+    let   id         = 0;
+
+    function add(role, text, error = false) {
+      messages.value.push({ id: ++id, role, text, error });
+      nextTick(() => messagesEl.value.scrollTop = messagesEl.value.scrollHeight);
+    }
+
+    async function send() {
+      const query = input.value.trim();
+      if (!query || loading.value) return;
+
+      add("user", query);
+      input.value = "";
+      loading.value = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/chat/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          add("assistant", data.detail || `Error ${res.status}`, true);
+        } else {
+          add("assistant", data.response);
+        }
+      } catch {
+        add("assistant", "Could not reach the server.", true);
+      } finally {
+        loading.value = false;
+        nextTick(() => inputEl.value?.focus());
+      }
+    }
+
+    return { messages, input, loading, messagesEl, inputEl, send };
+  }
+}).mount("#app");
+</script>
+</body>
+</html>

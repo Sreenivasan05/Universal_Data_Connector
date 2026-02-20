@@ -23,7 +23,7 @@ class LLMService:
         if function_name == "get_data":
             source = args.get("source")
             limit = int(args.get("limit", 10))
-            aggregate = bool(args.get("source",False))
+            aggregate = bool(args.get("aggregate",False))
 
             result = self.data_service.get_data(source=source, limit=limit, aggregate=aggregate)
             return result.model_dump()
@@ -59,6 +59,7 @@ class LLMService:
         )
 
         final_response = self._send(chat, tool_respone_part)
+        print("final_response", final_response)
         return final_response.text
     
 
