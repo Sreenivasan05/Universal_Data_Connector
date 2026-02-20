@@ -1,3 +1,6 @@
+import logging
+
+logger = logging.getLogger(__name__)
 
 class VoiceOptimizer:
 
@@ -32,7 +35,7 @@ class VoiceOptimizer:
                 "data_points": len(values),
                 "period":      f"{sorted_dates[0]} to {sorted_dates[-1]}" if sorted_dates else "unknown",
             })
-
+        logger.debug("Voice optimizer aggregated %d metrics", len(summaries))
         return summaries
 
 

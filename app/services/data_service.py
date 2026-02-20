@@ -25,7 +25,7 @@ class DataService:
 
         self.rules = BusinessRulesEngine()
         self.identifier = DataIdentifier()
-        self.voice = VoiceOptimizer
+        self.voice = VoiceOptimizer()
 
     def get_data(self, source:str, limit:int = 10, aggregate:bool = False):
         connector = self.connector_map.get(source)
@@ -34,9 +34,12 @@ class DataService:
         
         raw_data = connector.fetch()
         total = len(raw_data)
+        logger.debug("Connector returned %d raw records", total)
 
         data_type = self.identifier.identify(raw_data)
+        logger.debug("Detected data_type='%s'", data_type)
         filered = self.rules.apply(raw_data, limit=limit, data_type=data_type)
+        
         optimized = self.voice.optimize(filered, data_type=data_type, aggregate=aggregate)
 
 

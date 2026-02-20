@@ -1,16 +1,15 @@
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    APP_NAME: str = "Universal Data Connector"
+    APP_NAME : str
+    GEMINI_API_KEY: str
     MAX_RESULTS: int = 10
-    API_KEY: str
+    LOG_LEVEL: str = "INFO"
+    LOG_JSON: bool = False
+    ENVIRONMENT: str = "development"
 
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        extra="ignore"
-    )
-
+    class Config:
+        env_file = ".env"
 
 settings = Settings()

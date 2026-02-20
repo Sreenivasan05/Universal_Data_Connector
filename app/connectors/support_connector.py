@@ -1,5 +1,5 @@
 from app.connectors.base import BaseConnector
-from app.utils import load_json
+from app.utils.loadjson import load_json
 
 class SupportConnector(BaseConnector):
 

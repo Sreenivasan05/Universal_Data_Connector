@@ -3,8 +3,9 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from app.services.llm_agent import LLMService
 from app.services.data_service import DataService
+import logging
 
-
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/chat")
 
 
@@ -30,4 +31,10 @@ def chat(body: ChatRequest, llm_service: LLMService = Depends(get_llm_service)):
         raise HTTPException(
             status_code=429,
             detail="AI service is busy, please try again in a few seconds."
+        )
+    except Exception as exc:
+        logger.exception("Agent error for query: %s", body.query)
+        raise HTTPException(
+            status_code=500, 
+            detail="Agent error"
         )

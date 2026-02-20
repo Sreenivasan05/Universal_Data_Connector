@@ -14,7 +14,8 @@ class DataIdentifier:
         sample = data[0]
         keys = set(sample.keys())
 
-        if "metric" in keys and "values" in keys:
+
+        if "metric" in keys and "value" in keys:
             return "time_series"
         
         if "ticket_id" in keys:
