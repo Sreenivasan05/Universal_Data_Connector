@@ -13,9 +13,6 @@ from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 
 
-
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
@@ -35,7 +32,12 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Application shutting down")
 
-app = FastAPI(title=settings.APP_NAME,lifespan=lifespan)
+app = FastAPI(title=settings.APP_NAME,
+              lifespan=lifespan,     description="""
+    A unified API for querying CRM, support, and analytics data
+    through natural language via LLM function calling.
+    Optimized for voice conversations.
+    """,)
 
 app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])

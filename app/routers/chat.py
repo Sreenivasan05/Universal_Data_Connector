@@ -25,7 +25,7 @@ def get_llm_service(data_service: DataService = Depends(get_data_service),) -> L
 
 @router.post("/", response_model=ChatResponse)
 def chat(body: ChatRequest, llm_service: LLMService = Depends(get_llm_service)):
-    print("iam here")
+
     try:
         reply = llm_service.run_agent(body.query)
         return ChatResponse(response=reply)

@@ -53,13 +53,13 @@ class LLMService:
         logger.info("Tool call: %s(%s)", fn_name, fn_args)
 
         tool_result = self._execute_tool(fn_name, fn_args)
-        print("tool result", tool_result)
+
         tool_respone_part = content_types.to_part(
             {"function_response": {"name": fn_name, "response": tool_result}}
         )
 
         final_response = self._send(chat, tool_respone_part)
-        print("final_response", final_response)
+
         return final_response.text
     
 
