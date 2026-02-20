@@ -1,13 +1,27 @@
+from typing import Any
+import logging
 
-from typing import List, Dict
 
-def identify_data_type(data: List[Dict]) -> str:
-    if not data:
-        return "empty"
-    if "date" in data[0]:
-        return "time_series"
-    if "ticket_id" in data[0]:
-        return "tabular_support"
-    if "customer_id" in data[0]:
-        return "tabular_crm"
-    return "unknown"
+logger = logging.getLogger(__name__)
+
+
+class DataIdentifier:
+
+    def identify(self, data:list[dict[str, Any]]) -> str:
+        if not data:
+            return "empty"
+        
+        sample = data[0]
+        keys = set(sample.keys())
+
+        if "metric" in keys and "values" in keys:
+            return "time_series"
+        
+        if "ticket_id" in keys:
+            return "tabular_support"
+        
+        if "customer_id" in keys and "email" in keys:
+            return "tabular_crm"
+        
+        logger.warning("Could not identify data type from keys: %s",keys)
+        return "unknown"

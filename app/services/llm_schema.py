@@ -38,6 +38,15 @@ TOOLS = [
                             "type": "integer",
                             "description": "Max records to return (default 10, max 100)",
                         },
+                        "aggregate": {
+                        "type": "boolean",
+                        "description": (
+                            "True = return aggregated summary (avg/min/max/trend). "
+                            "Use for: 'how is X trending', 'summarize', 'overall performance', 'this month'. "
+                            "False = return raw records. "
+                            "Use for: specific dates, spike detection, 'show me the numbers', 'what happened on X'."
+                        )
+                    }
                     },
                     "required": ["source"],
                 },

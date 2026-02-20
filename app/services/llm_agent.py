@@ -2,28 +2,12 @@ from app.config import settings
 import google.generativeai as genai
 from app.services.data_service import DataService
 from app.services.llm_schema import TOOLS, SYSTEM_PROMPT
-from google.api_core.exceptions import ResourceExhausted
 from google.generativeai.types import content_types
-from functools import wraps
-import time
+from app.utils.retry import with_retry
 
 genai.configure(api_key=settings.API_KEY)
 
-def with_retry(max_attempt:int = 3, base_delay:float = 2.0):
-    def decorator(fn):
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            delay = base_delay
-            for attempt in range(1, max_attempt+1):
-                try:
-                    return fn(*args, **kwargs)
-                except ResourceExhausted as exc:
-                    if attempt == max_attempt:
-                        raise 
-                    time.sleep(delay)
-                    delay *= 2
-        return wrapper
-    return decorator
+
 
 class LLMService:
     def __init__(self, data_service: DataService) -> None:
